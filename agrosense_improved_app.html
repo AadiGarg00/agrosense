@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AgroSense</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --green-950: #0a1a0d;
+    --green-900: #143318;
+    --green-800: #1e5c2a;
+    --green-700: #277a36;
+    --green-600: #2e9940;
+    --green-500: #3ab84e;
+    --green-400: #6dd17e;
+    --green-300: #a5e5b0;
+    --green-200: #d0f2d6;
+    --green-100: #eafaec;
+    --amber-500: #d97706;
+    --amber-400: #f59e0b;
+    --amber-300: #fcd34d;
+    --amber-100: #fef3c7;
+    --red-500: #dc2626;
+    --red-100: #fee2e2;
+    --cream: #f8f5ee;
+    --cream-dark: #ede9df;
+    --brown: #6b4c2a;
+    --text-primary: #1a2e1d;
+    --text-secondary: #4a6350;
+    --text-muted: #7a9480;
+    --border: #c8dcc5;
+    --shadow: rgba(20,51,24,0.10);
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--text-primary);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* NAV */
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    background: var(--green-900);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 2rem;
+    height: 60px;
+    box-shadow: 0 2px 20px rgba(0,0,0,0.2);
+  }
+  .nav-logo {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.5rem; color: var(--green-300);
+    display: flex; align-items: center; gap: 8px; cursor: pointer;
+    text-decoration: none;
+  }
+  .nav-logo span { font-size: 1.4rem; }
+  .nav-links { display: flex; gap: 0.25rem; }
+  .nav-btn {
+    background: none; border: none; color: var(--green-300);
+    font-family: 'DM Sans', sans-serif; font-size: 0.875rem; font-weight: 500;
+    padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+  }
+  .nav-btn:hover, .nav-btn.active { background: var(--green-800); color: var(--green-200); }
+  .nav-btn.cta { background: var(--green-600); color: white; margin-left: 0.5rem; }
+  .nav-btn.cta:hover { background: var(--green-500); }
+
+  /* PAGES */
+  .page { display: none; min-height: calc(100vh - 60px); }
+  .page.active { display: block; }
+
+  /* HOME */
+  .hero {
+    background: linear-gradient(135deg, var(--green-900) 0%, var(--green-800) 50%, var(--green-700) 100%);
+    padding: 5rem 2rem 4rem;
+    text-align: center;
+    position: relative; overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image: radial-gradient(circle at 20% 50%, rgba(58,184,78,0.15) 0%, transparent 60%),
+                      radial-gradient(circle at 80% 20%, rgba(109,209,126,0.1) 0%, transparent 50%);
+  }
+  .hero-tag {
+    display: inline-block;
+    background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+    color: var(--green-300); font-size: 0.75rem; font-weight: 600;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    padding: 0.35rem 1rem; border-radius: 20px; margin-bottom: 1.5rem;
+  }
+  .hero h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(2.2rem, 5vw, 3.5rem);
+    color: white; line-height: 1.15; margin-bottom: 1.25rem;
+    position: relative;
+  }
+  .hero h1 em { color: var(--green-400); font-style: normal; }
+  .hero p {
+    font-size: 1.05rem; color: rgba(255,255,255,0.75);
+    max-width: 560px; margin: 0 auto 2.5rem; line-height: 1.7;
+  }
+  .hero-actions { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; position: relative; }
+  .btn-primary {
+    background: var(--green-500); color: white;
+    border: none; border-radius: 8px;
+    padding: 0.85rem 2rem; font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem; font-weight: 600; cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+  }
+  .btn-primary:hover { background: var(--green-400); transform: translateY(-1px); }
+  .btn-secondary {
+    background: rgba(255,255,255,0.1); color: white;
+    border: 1px solid rgba(255,255,255,0.25); border-radius: 8px;
+    padding: 0.85rem 2rem; font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem; font-weight: 500; cursor: pointer;
+    transition: background 0.2s;
+  }
+  .btn-secondary:hover { background: rgba(255,255,255,0.18); }
+
+  .features-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.25rem; padding: 3rem 2rem;
+    max-width: 1100px; margin: 0 auto;
+  }
+  .feature-card {
+    background: white; border: 1px solid var(--border);
+    border-radius: 14px; padding: 1.5rem;
+    cursor: pointer; transition: box-shadow 0.2s, transform 0.2s;
+  }
+  .feature-card:hover { box-shadow: 0 8px 30px var(--shadow); transform: translateY(-2px); }
+  .feature-icon {
+    width: 48px; height: 48px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.4rem; margin-bottom: 1rem;
+  }
+  .feature-card h3 { font-size: 1rem; font-weight: 600; margin-bottom: 0.4rem; color: var(--text-primary); }
+  .feature-card p { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6; }
+  .feature-card .arrow { color: var(--green-600); font-size: 1.2rem; margin-top: 0.75rem; display: block; }
+
+  /* DASHBOARD */
+  .dash-header {
+    background: var(--green-900); color: white;
+    padding: 2rem 2rem 1.5rem;
+  }
+  .dash-header h2 { font-family: 'DM Serif Display', serif; font-size: 1.75rem; margin-bottom: 0.25rem; }
+  .dash-header p { color: rgba(255,255,255,0.6); font-size: 0.9rem; }
+
+  .dash-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.25rem; padding: 2rem;
+    max-width: 1100px; margin: 0 auto;
+  }
+  .dash-card {
+    background: white; border: 1px solid var(--border);
+    border-radius: 14px; padding: 1.5rem;
+    cursor: pointer; transition: box-shadow 0.2s, transform 0.2s;
+    display: flex; flex-direction: column; gap: 0.75rem;
+  }
+  .dash-card:hover { box-shadow: 0 8px 30px var(--shadow); transform: translateY(-2px); }
+  .dash-card-icon { font-size: 2rem; }
+  .dash-card h3 { font-size: 1.05rem; font-weight: 600; }
+  .dash-card p { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.5; }
+  .dash-card .badge {
+    align-self: flex-start;
+    font-size: 0.7rem; font-weight: 600; padding: 0.2rem 0.6rem;
+    border-radius: 20px; text-transform: uppercase; letter-spacing: 0.05em;
+  }
+  .badge-green { background: var(--green-100); color: var(--green-800); }
+  .badge-amber { background: var(--amber-100); color: var(--amber-500); }
+  .badge-new { background: var(--green-200); color: var(--green-900); }
+
+  /* SCAN PAGE */
+  .scan-container { max-width: 780px; margin: 0 auto; padding: 2rem; }
+  .scan-container h2 {
+    font-family: 'DM Serif Display', serif; font-size: 1.75rem;
+    margin-bottom: 0.5rem; color: var(--text-primary);
+  }
+  .scan-container > p { color: var(--text-secondary); margin-bottom: 2rem; font-size: 0.95rem; }
+
+  .upload-zone {
+    border: 2px dashed var(--green-400); border-radius: 16px;
+    background: var(--green-100); padding: 3rem 2rem;
+    text-align: center; cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+    position: relative; overflow: hidden;
+  }
+  .upload-zone:hover, .upload-zone.drag-over {
+    background: var(--green-200); border-color: var(--green-600);
+  }
+  .upload-zone input[type=file] {
+    position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+  }
+  .upload-icon { font-size: 3rem; margin-bottom: 1rem; display: block; }
+  .upload-zone h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--green-900); }
+  .upload-zone p { font-size: 0.85rem; color: var(--text-secondary); }
+
+  .preview-wrap {
+    display: none; flex-direction: column; gap: 1rem;
+    border: 1px solid var(--border); border-radius: 14px;
+    overflow: hidden; background: white;
+  }
+  .preview-wrap.visible { display: flex; }
+  .preview-wrap img { width: 100%; max-height: 320px; object-fit: contain; background: var(--cream); }
+  .preview-actions {
+    display: flex; gap: 0.75rem; padding: 1rem 1.25rem; border-top: 1px solid var(--border);
+  }
+  .btn-scan {
+    flex: 1; background: var(--green-700); color: white;
+    border: none; border-radius: 8px; padding: 0.85rem;
+    font-family: 'DM Sans', sans-serif; font-size: 0.95rem; font-weight: 600;
+    cursor: pointer; transition: background 0.2s;
+  }
+  .btn-scan:hover { background: var(--green-600); }
+  .btn-scan:disabled { background: var(--cream-dark); color: var(--text-muted); cursor: not-allowed; }
+  .btn-clear {
+    background: none; border: 1px solid var(--border); border-radius: 8px;
+    padding: 0.85rem 1.25rem; font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem; cursor: pointer; color: var(--text-secondary);
+    transition: background 0.2s;
+  }
+  .btn-clear:hover { background: var(--cream-dark); }
+
+  .scan-result {
+    display: none; margin-top: 1.5rem;
+    background: white; border: 1px solid var(--border); border-radius: 14px;
+    overflow: hidden;
+  }
+  .scan-result.visible { display: block; }
+  .result-header {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 0.75rem;
+  }
+  .result-header h3 { font-size: 1.05rem; font-weight: 600; }
+  .result-body { padding: 1.25rem 1.5rem; }
+  .result-body p { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.8; }
+  .result-meta {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 0.75rem; margin-top: 1rem;
+  }
+  .meta-item {
+    background: var(--cream); border-radius: 8px; padding: 0.75rem 1rem;
+  }
+  .meta-item label { font-size: 0.7rem; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.08em; color: var(--text-muted); display: block; margin-bottom: 0.25rem; }
+  .meta-item span { font-size: 0.9rem; font-weight: 500; color: var(--text-primary); }
+
+  .loading-spinner {
+    display: none; text-align: center; padding: 2.5rem;
+  }
+  .loading-spinner.visible { display: block; }
+  .spinner {
+    width: 40px; height: 40px; border: 3px solid var(--green-200);
+    border-top-color: var(--green-600); border-radius: 50%;
+    animation: spin 0.8s linear infinite; margin: 0 auto 1rem;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-spinner p { color: var(--text-secondary); font-size: 0.9rem; }
+
+  /* WEATHER */
+  .weather-container { max-width: 780px; margin: 0 auto; padding: 2rem; }
+  .weather-container h2 { font-family: 'DM Serif Display', serif; font-size: 1.75rem; margin-bottom: 0.5rem; }
+  .weather-container > p { color: var(--text-secondary); margin-bottom: 1.5rem; font-size: 0.95rem; }
+
+  .city-search { display: flex; gap: 0.75rem; margin-bottom: 1.5rem; }
+  .city-search input {
+    flex: 1; padding: 0.75rem 1rem; border: 1px solid var(--border);
+    border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.95rem;
+    background: white; color: var(--text-primary); outline: none;
+    transition: border-color 0.2s;
+  }
+  .city-search input:focus { border-color: var(--green-500); }
+  .btn-weather {
+    background: var(--green-700); color: white; border: none; border-radius: 8px;
+    padding: 0.75rem 1.5rem; font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: background 0.2s;
+    white-space: nowrap;
+  }
+  .btn-weather:hover { background: var(--green-600); }
+
+  .weather-card {
+    display: none; background: var(--green-900); border-radius: 14px;
+    padding: 2rem; color: white; margin-bottom: 1.25rem;
+  }
+  .weather-card.visible { display: block; }
+  .weather-main { display: flex; align-items: center; justify-content: space-between; }
+  .weather-city { font-family: 'DM Serif Display', serif; font-size: 1.5rem; margin-bottom: 0.25rem; }
+  .weather-desc { color: rgba(255,255,255,0.6); font-size: 0.9rem; text-transform: capitalize; }
+  .weather-temp { font-family: 'DM Serif Display', serif; font-size: 3.5rem; line-height: 1; }
+  .weather-icon { font-size: 3.5rem; }
+  .weather-details {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem; margin-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.15);
+    padding-top: 1.25rem;
+  }
+  .weather-detail { text-align: center; }
+  .weather-detail label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em;
+    color: rgba(255,255,255,0.5); display: block; margin-bottom: 0.25rem; }
+  .weather-detail span { font-size: 1rem; font-weight: 500; }
+
+  .agro-advice {
+    display: none; background: white; border: 1px solid var(--border);
+    border-radius: 14px; padding: 1.25rem 1.5rem;
+  }
+  .agro-advice.visible { display: block; }
+  .agro-advice h4 { font-size: 0.9rem; font-weight: 600; color: var(--green-800); margin-bottom: 0.5rem;
+    display: flex; align-items: center; gap: 0.5rem; }
+  .agro-advice p { font-size: 0.875rem; color: var(--text-secondary); line-height: 1.7; }
+
+  /* MOISTURE */
+  .moisture-container { max-width: 780px; margin: 0 auto; padding: 2rem; }
+  .moisture-container h2 { font-family: 'DM Serif Display', serif; font-size: 1.75rem; margin-bottom: 0.5rem; }
+  .moisture-container > p { color: var(--text-secondary); margin-bottom: 2rem; font-size: 0.95rem; }
+
+  .moisture-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+  .moisture-card {
+    background: white; border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem;
+    text-align: center;
+  }
+  .moisture-label { font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--text-muted); margin-bottom: 0.5rem; }
+  .moisture-value { font-family: 'DM Serif Display', serif; font-size: 2.5rem; color: var(--green-700); }
+  .moisture-unit { font-size: 0.9rem; color: var(--text-muted); }
+  .moisture-bar { height: 6px; background: var(--cream-dark); border-radius: 3px; margin-top: 0.75rem; }
+  .moisture-fill { height: 100%; border-radius: 3px; background: var(--green-500); transition: width 1s ease; }
+
+  .sensor-table { background: white; border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+  .sensor-table table { width: 100%; border-collapse: collapse; }
+  .sensor-table th { background: var(--cream); padding: 0.75rem 1rem; text-align: left;
+    font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em;
+    color: var(--text-muted); border-bottom: 1px solid var(--border); }
+  .sensor-table td { padding: 0.85rem 1rem; border-bottom: 1px solid var(--cream-dark);
+    font-size: 0.875rem; color: var(--text-secondary); }
+  .sensor-table tr:last-child td { border-bottom: none; }
+  .status-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
+  .dot-good { background: var(--green-500); }
+  .dot-warn { background: var(--amber-400); }
+  .dot-bad { background: var(--red-500); }
+
+  /* CHAT */
+  .chat-container { max-width: 780px; margin: 0 auto; padding: 2rem; display: flex; flex-direction: column; height: calc(100vh - 60px); }
+  .chat-container h2 { font-family: 'DM Serif Display', serif; font-size: 1.75rem; margin-bottom: 0.25rem; }
+  .chat-container > p { color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1.25rem; }
+  .chat-messages { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 1rem; padding-right: 0.25rem; margin-bottom: 1rem; min-height: 0; }
+  .msg { max-width: 85%; display: flex; flex-direction: column; gap: 0.25rem; }
+  .msg.user { align-self: flex-end; align-items: flex-end; }
+  .msg.bot { align-self: flex-start; }
+  .msg-bubble {
+    padding: 0.75rem 1rem; border-radius: 12px;
+    font-size: 0.9rem; line-height: 1.6;
+  }
+  .msg.user .msg-bubble { background: var(--green-700); color: white; border-bottom-right-radius: 4px; }
+  .msg.bot .msg-bubble { background: white; border: 1px solid var(--border); color: var(--text-primary); border-bottom-left-radius: 4px; }
+  .msg-time { font-size: 0.7rem; color: var(--text-muted); }
+  .chat-input-row { display: flex; gap: 0.75rem; }
+  .chat-input {
+    flex: 1; padding: 0.85rem 1rem; border: 1px solid var(--border);
+    border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 0.95rem;
+    outline: none; background: white; color: var(--text-primary);
+    transition: border-color 0.2s;
+  }
+  .chat-input:focus { border-color: var(--green-500); }
+  .btn-send {
+    background: var(--green-700); color: white; border: none; border-radius: 10px;
+    padding: 0.85rem 1.25rem; font-size: 1rem; cursor: pointer; transition: background 0.2s;
+  }
+  .btn-send:hover { background: var(--green-600); }
+  .btn-send:disabled { background: var(--cream-dark); cursor: not-allowed; }
+
+  .thinking { display: flex; gap: 4px; align-items: center; padding: 0.75rem 1rem;
+    background: white; border: 1px solid var(--border); border-radius: 12px; width: fit-content; }
+  .thinking span { width: 7px; height: 7px; background: var(--green-400); border-radius: 50%;
+    animation: bounce 1.2s ease-in-out infinite; }
+  .thinking span:nth-child(2) { animation-delay: 0.2s; }
+  .thinking span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes bounce { 0%, 80%, 100% { transform: scale(0.7); opacity: 0.5; } 40% { transform: scale(1); opacity: 1; } }
+
+  /* error */
+  .error-box {
+    display: none; background: var(--red-100); border: 1px solid #fca5a5;
+    border-radius: 10px; padding: 1rem 1.25rem; margin-top: 1rem;
+    font-size: 0.875rem; color: var(--red-500);
+  }
+  .error-box.visible { display: block; }
+
+  /* quick tips */
+  .quick-chips { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.75rem; }
+  .chip {
+    background: var(--green-100); border: 1px solid var(--green-300);
+    color: var(--green-800); font-size: 0.78rem; font-weight: 500;
+    padding: 0.35rem 0.75rem; border-radius: 20px; cursor: pointer;
+    transition: background 0.15s;
+  }
+  .chip:hover { background: var(--green-200); }
+
+  @media (max-width: 600px) {
+    nav { padding: 0 1rem; }
+    .dash-grid, .features-grid { padding: 1rem; }
+    .scan-container, .weather-container, .moisture-container { padding: 1rem; }
+    .chat-container { padding: 1rem; }
+    .result-meta { grid-template-columns: 1fr; }
+    .weather-details { grid-template-columns: repeat(3, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" onclick="showPage('home')">
+    <span>🌱</span> AgroSense
+  </a>
+  <div class="nav-links">
+    <button class="nav-btn" onclick="showPage('home')">Home</button>
+    <button class="nav-btn" onclick="showPage('dashboard')">Dashboard</button>
+    <button class="nav-btn" onclick="showPage('chat')">Expert AI</button>
+  </div>
+</nav>
+
+<!-- HOME -->
+<div class="page active" id="page-home">
+  <div class="hero">
+    <div class="hero-tag">Smart Agriculture Platform</div>
+    <h1>Grow smarter with<br><em>AI-powered insights</em></h1>
+    <p>Real-time crop scanning, weather intelligence, and soil monitoring — everything a modern farmer needs in one place.</p>
+    <div class="hero-actions">
+      <button class="btn-primary" onclick="showPage('dashboard')">Explore Dashboard</button>
+      <button class="btn-secondary" onclick="showPage('scan')">Scan a Crop</button>
+    </div>
+  </div>
+  <div class="features-grid">
+    <div class="feature-card" onclick="showPage('scan')">
+      <div class="feature-icon" style="background:#eafaec">🔬</div>
+      <h3>AI Crop Scanner</h3>
+      <p>Upload a photo of your crop. Our AI instantly identifies diseases, deficiencies, and pests with treatment advice.</p>
+      <span class="arrow">→</span>
+    </div>
+    <div class="feature-card" onclick="showPage('weather')">
+      <div class="feature-icon" style="background:#e0f2fe">🌤</div>
+      <h3>Weather Forecast</h3>
+      <p>Hyperlocal weather data with actionable advice on when to irrigate, fertilize, or harvest.</p>
+      <span class="arrow">→</span>
+    </div>
+    <div class="feature-card" onclick="showPage('moisture')">
+      <div class="feature-icon" style="background:#fef3c7">💧</div>
+      <h3>Moisture Monitor</h3>
+      <p>Track soil moisture across multiple field zones. Get alerts before conditions become critical.</p>
+      <span class="arrow">→</span>
+    </div>
+    <div class="feature-card" onclick="showPage('chat')">
+      <div class="feature-icon" style="background:#f3e8ff">🧑‍🌾</div>
+      <h3>Expert AI Assistant</h3>
+      <p>Ask anything about your farm. Get expert-level advice on crops, soil health, pests, and more.</p>
+      <span class="arrow">→</span>
+    </div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div class="page" id="page-dashboard">
+  <div class="dash-header">
+    <h2>Farm Dashboard</h2>
+    <p>All your agricultural tools in one place</p>
+  </div>
+  <div class="dash-grid">
+    <div class="dash-card" onclick="showPage('scan')">
+      <div class="dash-card-icon">🔬</div>
+      <span class="badge badge-new">AI-Powered</span>
+      <h3>Crop Disease Scanner</h3>
+      <p>Take or upload a photo of your plant to instantly detect diseases, pest damage, and nutrient deficiencies.</p>
+    </div>
+    <div class="dash-card" onclick="showPage('weather')">
+      <div class="dash-card-icon">🌤</div>
+      <span class="badge badge-green">Live Data</span>
+      <h3>Weather Forecast</h3>
+      <p>City-by-city weather with farmingspecific advice for irrigation, spraying, and planting windows.</p>
+    </div>
+    <div class="dash-card" onclick="showPage('moisture')">
+      <div class="dash-card-icon">💧</div>
+      <span class="badge badge-amber">4 Sensors</span>
+      <h3>Soil Moisture Levels</h3>
+      <p>Monitor real-time soil moisture from your sensor network. Get automated irrigation recommendations.</p>
+    </div>
+    <div class="dash-card" onclick="showPage('chat')">
+      <div class="dash-card-icon">🧑‍🌾</div>
+      <span class="badge badge-green">24/7</span>
+      <h3>Expert AI Assistant</h3>
+      <p>Get instant answers to all your farming questions — crop cycles, soil chemistry, pest management, and more.</p>
+    </div>
+  </div>
+</div>
+
+<!-- SCAN PAGE -->
+<div class="page" id="page-scan">
+  <div class="scan-container">
+    <h2>🔬 Crop Disease Scanner</h2>
+    <p>Upload a clear photo of your plant's affected area. The AI will analyze it for diseases, nutrient deficiencies, pests, and provide treatment recommendations.</p>
+
+    <div class="upload-zone" id="upload-zone" ondragover="handleDragOver(event)" ondrop="handleDrop(event)" ondragleave="handleDragLeave(event)">
+      <input type="file" id="file-input" accept="image/*" onchange="handleFileSelect(event)">
+      <span class="upload-icon">📷</span>
+      <h3>Drop your crop photo here</h3>
+      <p>or click to browse · JPG, PNG, WEBP supported</p>
+    </div>
+
+    <div class="preview-wrap" id="preview-wrap">
+      <img id="preview-img" src="" alt="Crop preview">
+      <div class="preview-actions">
+        <button class="btn-scan" id="btn-scan" onclick="analyzeCrop()">Analyze Crop</button>
+        <button class="btn-clear" onclick="clearScan()">Clear</button>
+      </div>
+    </div>
+
+    <div class="error-box" id="scan-error"></div>
+
+    <div class="loading-spinner" id="scan-loading">
+      <div class="spinner"></div>
+      <p>Analyzing your crop image with AI...</p>
+      <p style="font-size:0.8rem;margin-top:0.25rem;color:var(--text-muted)">This may take a few seconds</p>
+    </div>
+
+    <div class="scan-result" id="scan-result">
+      <div class="result-header" id="result-header">
+        <span id="result-icon" style="font-size:1.5rem">✅</span>
+        <h3 id="result-title">Analysis Complete</h3>
+      </div>
+      <div class="result-body">
+        <div class="result-meta" id="result-meta"></div>
+        <div id="result-desc" style="margin-top:1rem"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- WEATHER PAGE -->
+<div class="page" id="page-weather">
+  <div class="weather-container">
+    <h2>🌤 Weather Forecast</h2>
+    <p>Get current weather conditions with tailored agricultural advice for your area.</p>
+    <div class="city-search">
+      <input type="text" id="city-input" placeholder="Enter city name (e.g. Lucknow, Pune, Delhi)" onkeydown="if(event.key==='Enter')fetchWeather()">
+      <button class="btn-weather" onclick="fetchWeather()">Get Weather</button>
+    </div>
+    <div class="error-box" id="weather-error"></div>
+    <div class="loading-spinner" id="weather-loading">
+      <div class="spinner"></div>
+      <p>Fetching weather data...</p>
+    </div>
+    <div class="weather-card" id="weather-card">
+      <div class="weather-main">
+        <div>
+          <div class="weather-city" id="w-city">—</div>
+          <div class="weather-desc" id="w-desc">—</div>
+        </div>
+        <div>
+          <div class="weather-icon" id="w-icon">🌡</div>
+        </div>
+      </div>
+      <div style="font-family:'DM Serif Display',serif;font-size:3rem;margin-top:0.5rem" id="w-temp">—</div>
+      <div class="weather-details">
+        <div class="weather-detail">
+          <label>Humidity</label>
+          <span id="w-humidity">—</span>
+        </div>
+        <div class="weather-detail">
+          <label>Wind</label>
+          <span id="w-wind">—</span>
+        </div>
+        <div class="weather-detail">
+          <label>Feels like</label>
+          <span id="w-feels">—</span>
+        </div>
+      </div>
+    </div>
+    <div class="agro-advice" id="agro-advice">
+      <h4>🌾 Farming Advice for Today</h4>
+      <p id="agro-advice-text">—</p>
+    </div>
+  </div>
+</div>
+
+<!-- MOISTURE PAGE -->
+<div class="page" id="page-moisture">
+  <div class="moisture-container">
+    <h2>💧 Soil Moisture Monitor</h2>
+    <p>Real-time soil moisture readings from your field sensors. Optimal range: 40–70% for most crops.</p>
+    <div class="moisture-grid" id="moisture-grid"></div>
+    <div class="sensor-table">
+      <table>
+        <thead>
+          <tr><th>Zone</th><th>Moisture</th><th>Temp (°C)</th><th>EC (dS/m)</th><th>Status</th><th>Last Updated</th></tr>
+        </thead>
+        <tbody id="sensor-body"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- CHAT PAGE -->
+<div class="page" id="page-chat">
+  <div class="chat-container">
+    <h2>🧑‍🌾 Expert AI Assistant</h2>
+    <p>Ask anything about farming, crop diseases, soil health, irrigation, and more.</p>
+    <div class="chat-messages" id="chat-messages"></div>
+    <div class="quick-chips" id="quick-chips">
+      <span class="chip" onclick="sendChip(this)">Best time to irrigate wheat?</span>
+      <span class="chip" onclick="sendChip(this)">Yellow leaves on tomato plants</span>
+      <span class="chip" onclick="sendChip(this)">How to improve soil pH?</span>
+      <span class="chip" onclick="sendChip(this)">Organic pest control methods</span>
+    </div>
+    <div class="chat-input-row">
+      <input class="chat-input" id="chat-input" placeholder="Ask your farming question..." onkeydown="if(event.key==='Enter'&&!event.shiftKey)sendChat()">
+      <button class="btn-send" id="btn-send" onclick="sendChat()">➤</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let currentPage = 'home';
+let imageBase64 = null;
+let chatHistory = [];
+
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  currentPage = name;
+  if (name === 'moisture') initMoisture();
+  if (name === 'chat' && chatHistory.length === 0) addBotMsg("Hello! I'm your AgroSense AI assistant. I can help with crop diseases, soil health, irrigation scheduling, pest management, and more. What would you like to know today?");
+}
+
+// ── SCAN ──────────────────────────────────────────────────────────────────────
+function handleDragOver(e) { e.preventDefault(); document.getElementById('upload-zone').classList.add('drag-over'); }
+function handleDragLeave(e) { document.getElementById('upload-zone').classList.remove('drag-over'); }
+function handleDrop(e) {
+  e.preventDefault();
+  document.getElementById('upload-zone').classList.remove('drag-over');
+  const file = e.dataTransfer.files[0];
+  if (file && file.type.startsWith('image/')) loadImage(file);
+}
+function handleFileSelect(e) { const file = e.target.files[0]; if (file) loadImage(file); }
+
+function loadImage(file) {
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    imageBase64 = e.target.result.split(',')[1];
+    document.getElementById('preview-img').src = e.target.result;
+    document.getElementById('preview-wrap').classList.add('visible');
+    document.getElementById('upload-zone').style.display = 'none';
+    hideEl('scan-result'); hideEl('scan-error'); hideEl('scan-loading');
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearScan() {
+  imageBase64 = null;
+  document.getElementById('preview-wrap').classList.remove('visible');
+  document.getElementById('upload-zone').style.display = '';
+  document.getElementById('file-input').value = '';
+  hideEl('scan-result'); hideEl('scan-error'); hideEl('scan-loading');
+}
+
+async function analyzeCrop() {
+  if (!imageBase64) return;
+  const btn = document.getElementById('btn-scan');
+  btn.disabled = true; btn.textContent = 'Analyzing...';
+  hideEl('scan-result'); hideEl('scan-error');
+  showEl('scan-loading');
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: `You are an expert agricultural scientist and plant pathologist. Analyze crop images and respond ONLY with a valid JSON object (no markdown, no backticks) with this exact structure:
+{
+  "status": "healthy" | "diseased" | "deficient" | "pest_damage" | "uncertain",
+  "condition": "Short name of condition (max 5 words)",
+  "severity": "None" | "Mild" | "Moderate" | "Severe",
+  "confidence": "High" | "Medium" | "Low",
+  "crop_type": "Identified crop or 'Unknown'",
+  "summary": "2-3 sentence description of what you see and the diagnosis",
+  "treatment": "2-3 specific, actionable treatment recommendations",
+  "prevention": "1-2 prevention tips for the future"
+}`,
+        messages: [{
+          role: 'user',
+          content: [
+            { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: imageBase64 } },
+            { type: 'text', text: 'Please analyze this crop image and provide a detailed diagnosis in the requested JSON format.' }
+          ]
+        }]
+      })
+    });
+    const data = await response.json();
+    if (data.error) throw new Error(data.error.message);
+    const raw = data.content.map(b => b.text || '').join('');
+    const clean = raw.replace(/```json|```/g, '').trim();
+    const result = JSON.parse(clean);
+    displayScanResult(result);
+  } catch (err) {
+    showError('scan-error', 'Analysis failed: ' + (err.message || 'Unknown error. Please try again.'));
+  } finally {
+    btn.disabled = false; btn.textContent = 'Analyze Crop';
+    hideEl('scan-loading');
+  }
+}
+
+function displayScanResult(r) {
+  const icons = { healthy: '✅', diseased: '🚨', deficient: '⚠️', pest_damage: '🐛', uncertain: '🔍' };
+  const colors = { healthy: 'var(--green-700)', diseased: 'var(--red-500)', deficient: 'var(--amber-500)', pest_damage: '#7c3aed', uncertain: 'var(--text-secondary)' };
+  
+  document.getElementById('result-icon').textContent = icons[r.status] || '🔍';
+  document.getElementById('result-title').textContent = r.condition || 'Analysis Complete';
+  document.getElementById('result-header').style.borderLeft = '4px solid ' + (colors[r.status] || 'var(--green-600)');
+  
+  document.getElementById('result-meta').innerHTML = `
+    <div class="meta-item"><label>Crop Type</label><span>${r.crop_type || 'Unknown'}</span></div>
+    <div class="meta-item"><label>Status</label><span>${r.status?.replace('_',' ') || '—'}</span></div>
+    <div class="meta-item"><label>Severity</label><span>${r.severity || '—'}</span></div>
+    <div class="meta-item"><label>Confidence</label><span>${r.confidence || '—'}</span></div>
+  `;
+  
+  document.getElementById('result-desc').innerHTML = `
+    <p style="margin-bottom:1rem;color:var(--text-primary)">${r.summary || ''}</p>
+    ${r.treatment ? `<div style="background:var(--green-100);border-radius:8px;padding:1rem;margin-bottom:0.75rem">
+      <strong style="font-size:0.8rem;text-transform:uppercase;letter-spacing:.06em;color:var(--green-800);display:block;margin-bottom:0.4rem">Treatment</strong>
+      <p style="font-size:0.875rem;color:var(--green-900)">${r.treatment}</p>
+    </div>` : ''}
+    ${r.prevention ? `<div style="background:var(--amber-100);border-radius:8px;padding:1rem">
+      <strong style="font-size:0.8rem;text-transform:uppercase;letter-spacing:.06em;color:var(--amber-500);display:block;margin-bottom:0.4rem">Prevention</strong>
+      <p style="font-size:0.875rem;color:#78350f">${r.prevention}</p>
+    </div>` : ''}
+  `;
+  showEl('scan-result');
+}
+
+// ── WEATHER ───────────────────────────────────────────────────────────────────
+async function fetchWeather() {
+  const city = document.getElementById('city-input').value.trim();
+  if (!city) { showError('weather-error', 'Please enter a city name.'); return; }
+  hideEl('weather-error'); hideEl('weather-card'); hideEl('agro-advice');
+  showEl('weather-loading');
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 800,
+        tools: [{ type: 'web_search_20250305', name: 'web_search' }],
+        system: `You are a weather data assistant. Search for current weather in the given city and return ONLY a JSON object (no backticks, no markdown) with this structure:
+{
+  "city": "City, Country",
+  "temp_c": number,
+  "feels_like_c": number,
+  "humidity_pct": number,
+  "wind_kmh": number,
+  "description": "weather description",
+  "condition": "sunny|cloudy|rainy|stormy|foggy|snowy",
+  "farming_advice": "2-3 sentences of practical farming advice based on these conditions"
+}`,
+        messages: [{ role: 'user', content: `Get current weather for ${city} and return as JSON.` }]
+      })
+    });
+    const data = await response.json();
+    if (data.error) throw new Error(data.error.message);
+    const raw = data.content.filter(b => b.type === 'text').map(b => b.text).join('');
+    const clean = raw.replace(/```json|```/g, '').trim();
+    const w = JSON.parse(clean);
+    displayWeather(w);
+  } catch(err) {
+    showError('weather-error', 'Could not fetch weather. Please check the city name and try again.');
+  } finally { hideEl('weather-loading'); }
+}
+
+function displayWeather(w) {
+  const icons = { sunny:'☀️', cloudy:'⛅', rainy:'🌧', stormy:'⛈', foggy:'🌫', snowy:'❄️' };
+  document.getElementById('w-city').textContent = w.city;
+  document.getElementById('w-desc').textContent = w.description;
+  document.getElementById('w-temp').textContent = Math.round(w.temp_c) + '°C';
+  document.getElementById('w-feels').textContent = Math.round(w.feels_like_c) + '°C';
+  document.getElementById('w-humidity').textContent = Math.round(w.humidity_pct) + '%';
+  document.getElementById('w-wind').textContent = Math.round(w.wind_kmh) + ' km/h';
+  document.getElementById('w-icon').textContent = icons[w.condition] || '🌡';
+  document.getElementById('agro-advice-text').textContent = w.farming_advice;
+  showEl('weather-card'); showEl('agro-advice');
+}
+
+// ── MOISTURE ──────────────────────────────────────────────────────────────────
+function initMoisture() {
+  const zones = [
+    { name:'Zone A – North Field', moisture:62, temp:24.3, ec:1.8, status:'good', updated:'2 min ago' },
+    { name:'Zone B – South Field', moisture:38, temp:26.1, ec:2.1, status:'warn', updated:'3 min ago' },
+    { name:'Zone C – Greenhouse', moisture:71, temp:28.0, ec:1.5, status:'good', updated:'1 min ago' },
+    { name:'Zone D – Orchard', moisture:29, temp:25.5, ec:2.4, status:'bad', updated:'5 min ago' },
+  ];
+
+  const grid = document.getElementById('moisture-grid');
+  grid.innerHTML = zones.map(z => `
+    <div class="moisture-card">
+      <div class="moisture-label">${z.name.split('–')[0].trim()}</div>
+      <div><span class="moisture-value">${z.moisture}</span><span class="moisture-unit">%</span></div>
+      <div class="moisture-bar"><div class="moisture-fill" style="width:${z.moisture}%;background:${z.moisture<35?'var(--red-500)':z.moisture<50?'var(--amber-400)':'var(--green-500)'}"></div></div>
+    </div>
+  `).join('');
+
+  const statusDot = { good: 'dot-good', warn: 'dot-warn', bad: 'dot-bad' };
+  const statusText = { good: 'Optimal', warn: 'Low — Irrigate Soon', bad: 'Critical — Irrigate Now' };
+  document.getElementById('sensor-body').innerHTML = zones.map(z => `
+    <tr>
+      <td style="font-weight:500;color:var(--text-primary)">${z.name}</td>
+      <td>${z.moisture}%</td>
+      <td>${z.temp}</td>
+      <td>${z.ec}</td>
+      <td><span class="status-dot ${statusDot[z.status]}"></span>${statusText[z.status]}</td>
+      <td style="color:var(--text-muted)">${z.updated}</td>
+    </tr>
+  `).join('');
+}
+
+// ── CHAT ──────────────────────────────────────────────────────────────────────
+function addBotMsg(text) {
+  const msgs = document.getElementById('chat-messages');
+  chatHistory.push({ role: 'assistant', content: text });
+  const el = document.createElement('div');
+  el.className = 'msg bot';
+  el.innerHTML = `<div class="msg-bubble">${text}</div><div class="msg-time">${getTime()}</div>`;
+  msgs.appendChild(el); msgs.scrollTop = msgs.scrollHeight;
+}
+
+function addUserMsg(text) {
+  const msgs = document.getElementById('chat-messages');
+  chatHistory.push({ role: 'user', content: text });
+  const el = document.createElement('div');
+  el.className = 'msg user';
+  el.innerHTML = `<div class="msg-bubble">${text}</div><div class="msg-time">${getTime()}</div>`;
+  msgs.appendChild(el); msgs.scrollTop = msgs.scrollHeight;
+}
+
+function showThinking() {
+  const msgs = document.getElementById('chat-messages');
+  const el = document.createElement('div'); el.className = 'msg bot'; el.id = 'thinking-msg';
+  el.innerHTML = `<div class="thinking"><span></span><span></span><span></span></div>`;
+  msgs.appendChild(el); msgs.scrollTop = msgs.scrollHeight;
+}
+
+function removeThinking() { const el = document.getElementById('thinking-msg'); if (el) el.remove(); }
+function getTime() { return new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}); }
+
+function sendChip(el) {
+  document.getElementById('chat-input').value = el.textContent;
+  sendChat();
+}
+
+async function sendChat() {
+  const input = document.getElementById('chat-input');
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+  document.getElementById('btn-send').disabled = true;
+  document.getElementById('quick-chips').style.display = 'none';
+  addUserMsg(text);
+  showThinking();
+
+  try {
+    const messages = chatHistory.slice(0, -1).map(m => ({ role: m.role, content: m.content }));
+    messages.push({ role: 'user', content: text });
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: 'You are AgroSense Expert, a knowledgeable agricultural AI assistant specializing in crop science, soil health, irrigation, pest management, and sustainable farming. Provide practical, actionable advice. Keep responses concise (2-4 paragraphs). Use simple language suitable for farmers. When appropriate, mention specific product names, timings, or quantities.',
+        messages
+      })
+    });
+    const data = await response.json();
+    if (data.error) throw new Error(data.error.message);
+    const reply = data.content.map(b => b.text || '').join('');
+    removeThinking(); addBotMsg(reply);
+  } catch(err) {
+    removeThinking(); addBotMsg('Sorry, I encountered an error. Please try again.');
+  } finally { document.getElementById('btn-send').disabled = false; }
+}
+
+// ── UTILS ─────────────────────────────────────────────────────────────────────
+function showEl(id) { document.getElementById(id).classList.add('visible'); }
+function hideEl(id) { document.getElementById(id).classList.remove('visible'); }
+function showError(id, msg) { const el = document.getElementById(id); el.textContent = msg; el.classList.add('visible'); }
+</script>
+</body>
+</html>
