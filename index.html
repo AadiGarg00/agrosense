@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AgroSense</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Sora:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green-900: #0f2a0f;
+    --green-800: #1a3d1a;
+    --green-700: #1f5c2e;
+    --green-600: #2d7a3a;
+    --green-500: #3a9e4a;
+    --green-400: #5cbd6b;
+    --green-300: #8fd99a;
+    --green-100: #d6f5db;
+    --green-50:  #edfaf0;
+    --soil-900: #2c1a0e;
+    --soil-700: #5c3d1e;
+    --soil-400: #a0713a;
+    --soil-100: #f5e6d3;
+    --amber: #e8a020;
+    --red: #d63a2f;
+    --blue: #2563eb;
+    --bg: #f5faf5;
+    --card: #ffffff;
+    --text: #111a11;
+    --muted: #5a6e5a;
+    --border: rgba(0,0,0,0.08);
+    --font-display: 'DM Serif Display', Georgia, serif;
+    --font-body: 'Sora', sans-serif;
+    --radius: 18px;
+    --radius-sm: 10px;
+    --shadow: 0 2px 16px rgba(0,80,0,0.08);
+    --shadow-lg: 0 8px 40px rgba(0,80,0,0.14);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: var(--font-body);
+    background: #e8f0e8;
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 20px 0;
+  }
+  .phone {
+    width: 100%;
+    max-width: 420px;
+    min-height: 100vh;
+    background: var(--bg);
+    position: relative;
+    overflow: hidden;
+    border-radius: 32px;
+    box-shadow: 0 24px 80px rgba(0,0,0,0.18);
+  }
+  .screen {
+    position: absolute;
+    inset: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    transition: transform 0.38s cubic-bezier(0.4,0,0.2,1), opacity 0.3s;
+  }
+  .screen.hidden { transform: translateX(100%); opacity: 0; pointer-events: none; }
+  .screen.slide-left { transform: translateX(-100%); opacity: 0; pointer-events: none; }
+  .status-bar {
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text);
+    position: sticky; top: 0; z-index: 10;
+    background: var(--bg);
+  }
+  .back-btn {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: var(--card); border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 18px; color: var(--text);
+    box-shadow: var(--shadow);
+  }
+  .navbar-title { font-size: 17px; font-weight: 600; }
+  #home { background: var(--bg); }
+  .home-hero {
+    background: linear-gradient(160deg, var(--green-800) 0%, var(--green-600) 60%, var(--green-400) 100%);
+    padding: 28px 24px 36px;
+    position: relative;
+    overflow: hidden;
+  }
+  .home-hero::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 220px; height: 220px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.06);
+  }
+  .home-hero::after {
+    content: '';
+    position: absolute;
+    bottom: -40px; left: -30px;
+    width: 160px; height: 160px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.05);
+  }
+  .hero-greeting { font-size: 13px; color: var(--green-300); letter-spacing: 0.05em; text-transform: uppercase; font-weight: 500; margin-bottom: 6px; }
+  .hero-title { font-family: var(--font-display); font-size: 32px; color: #fff; line-height: 1.15; margin-bottom: 12px; }
+  .hero-title em { color: var(--green-300); font-style: italic; }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(255,255,255,0.15); border-radius: 20px;
+    padding: 5px 12px; font-size: 12px; color: #fff; backdrop-filter: blur(4px);
+  }
+  .hero-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green-300); animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.6;transform:scale(1.3)} }
+  .home-content { padding: 24px 20px; }
+  .scan-btn {
+    width: 100%; padding: 18px;
+    background: linear-gradient(135deg, var(--green-700), var(--green-500));
+    border: none; border-radius: var(--radius);
+    color: #fff; font-family: var(--font-body);
+    font-size: 16px; font-weight: 600;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    box-shadow: 0 6px 24px rgba(45,122,58,0.35);
+    transition: transform 0.15s, box-shadow 0.15s;
+    margin-bottom: 12px;
+  }
+  .scan-btn:active { transform: scale(0.98); box-shadow: 0 2px 12px rgba(45,122,58,0.3); }
+  .gallery-btn {
+    width: 100%; padding: 14px;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--radius); color: var(--text);
+    font-family: var(--font-body); font-size: 14px; font-weight: 500;
+    cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+    box-shadow: var(--shadow); transition: background 0.15s;
+    margin-bottom: 24px;
+  }
+  .gallery-btn:active { background: var(--green-50); }
+  .section-label {
+    font-size: 12px; font-weight: 600; color: var(--muted);
+    letter-spacing: 0.08em; text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .stat-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 24px; }
+  .stat-card {
+    background: var(--card); border-radius: var(--radius-sm);
+    padding: 14px; border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+  }
+  .stat-num { font-family: var(--font-display); font-size: 26px; color: var(--green-700); line-height: 1; margin-bottom: 4px; }
+  .stat-label { font-size: 11px; color: var(--muted); font-weight: 500; }
+  .recent-scan {
+    background: var(--card); border-radius: var(--radius);
+    border: 1px solid var(--border); box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .recent-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 16px; border-bottom: 1px solid var(--border);
+    cursor: pointer; transition: background 0.15s;
+  }
+  .recent-item:last-child { border-bottom: none; }
+  .recent-item:active { background: var(--green-50); }
+  .recent-thumb {
+    width: 42px; height: 42px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; flex-shrink: 0;
+  }
+  .recent-info { flex: 1; }
+  .recent-name { font-size: 13px; font-weight: 600; color: var(--text); }
+  .recent-date { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .severity-badge { font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.04em; }
+  .sev-high { background: #fef2f2; color: var(--red); }
+  .sev-med { background: #fffbeb; color: var(--amber); }
+  .sev-low { background: var(--green-50); color: var(--green-700); }
+  .bottom-nav {
+    position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+    width: 100%; max-width: 420px;
+    background: var(--card); border-top: 1px solid var(--border);
+    display: flex; justify-content: space-around;
+    padding: 10px 0 20px;
+    z-index: 20;
+    border-radius: 0 0 32px 32px;
+  }
+  .nav-item {
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    font-size: 10px; font-weight: 500; color: var(--muted);
+    cursor: pointer; padding: 4px 16px;
+  }
+  .nav-item.active { color: var(--green-700); }
+  .nav-item .nav-icon { font-size: 22px; }
+  #scan { background: #0a1a0a; }
+  .camera-view {
+    height: 380px; position: relative; background: #0a1a0a;
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden;
+  }
+  .camera-bg { position: absolute; inset: 0; background: radial-gradient(ellipse at center, rgba(45,122,58,0.15) 0%, transparent 70%); }
+  .camera-placeholder { display: flex; flex-direction: column; align-items: center; gap: 12px; color: rgba(255,255,255,0.5); z-index: 2; }
+  .camera-icon-lg { font-size: 64px; }
+  .camera-text { font-size: 13px; font-weight: 500; text-align: center; line-height: 1.5; }
+  .scan-frame { position: absolute; inset: 40px; border: 2px solid rgba(90,205,107,0.6); border-radius: 16px; background: transparent; }
+  .scan-corner { position: absolute; width: 20px; height: 20px; border-color: var(--green-400); border-style: solid; }
+  .scan-corner.tl { top: -2px; left: -2px; border-width: 3px 0 0 3px; border-radius: 4px 0 0 0; }
+  .scan-corner.tr { top: -2px; right: -2px; border-width: 3px 3px 0 0; border-radius: 0 4px 0 0; }
+  .scan-corner.bl { bottom: -2px; left: -2px; border-width: 0 0 3px 3px; border-radius: 0 0 0 4px; }
+  .scan-corner.br { bottom: -2px; right: -2px; border-width: 0 3px 3px 0; border-radius: 0 0 4px 0; }
+  .scan-guide { position: absolute; bottom: 20px; left: 0; right: 0; text-align: center; font-size: 12px; color: rgba(255,255,255,0.6); }
+  .camera-controls { background: #0a1a0a; padding: 24px 20px; display: flex; align-items: center; justify-content: space-around; }
+  .cam-btn-secondary { width: 52px; height: 52px; border-radius: 50%; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; font-size: 22px; cursor: pointer; color: #fff; transition: background 0.15s; }
+  .capture-btn { width: 72px; height: 72px; border-radius: 50%; background: var(--green-500); border: 4px solid rgba(255,255,255,0.3); display: flex; align-items: center; justify-content: center; font-size: 28px; cursor: pointer; box-shadow: 0 0 0 2px var(--green-500), 0 0 30px rgba(90,205,107,0.4); transition: transform 0.15s; }
+  .capture-btn:active { transform: scale(0.94); }
+  .sample-section { background: #0a1a0a; padding: 0 20px 20px; }
+  .sample-label { font-size: 11px; color: rgba(255,255,255,0.4); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 10px; }
+  .sample-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .sample-chip { background: rgba(255,255,255,0.07); border-radius: 10px; padding: 10px 6px; display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; transition: background 0.15s; border: 1px solid rgba(255,255,255,0.1); }
+  .sample-chip:active { background: rgba(90,205,107,0.2); border-color: var(--green-400); }
+  .sample-chip span:first-child { font-size: 20px; }
+  .sample-chip span:last-child { font-size: 9px; color: rgba(255,255,255,0.5); font-weight: 500; text-align: center; }
+  .loading-overlay { position: fixed; inset: 0; background: rgba(10,26,10,0.92); backdrop-filter: blur(8px); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100; gap: 20px; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+  .loading-overlay.show { opacity: 1; pointer-events: all; }
+  .loading-ring { width: 72px; height: 72px; border-radius: 50%; border: 3px solid rgba(90,205,107,0.2); border-top-color: var(--green-400); animation: spin 1s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-text { color: #fff; font-size: 16px; font-weight: 500; }
+  .loading-sub { color: rgba(255,255,255,0.5); font-size: 12px; text-align: center; max-width: 200px; line-height: 1.6; }
+  #result { background: var(--bg); }
+  .result-hero { background: linear-gradient(135deg, var(--green-800), var(--green-600)); padding: 20px 20px 32px; position: relative; overflow: hidden; }
+  .result-hero::before { content: ''; position: absolute; top: -40px; right: -40px; width: 160px; height: 160px; border-radius: 50%; background: rgba(255,255,255,0.06); }
+  .leaf-preview { width: 80px; height: 80px; border-radius: 14px; background: rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; font-size: 40px; margin-bottom: 14px; border: 2px solid rgba(255,255,255,0.2); }
+  .result-disease { font-family: var(--font-display); font-size: 24px; color: #fff; margin-bottom: 6px; }
+  .result-crop { font-size: 13px; color: var(--green-300); font-weight: 500; margin-bottom: 12px; }
+  .confidence-row { display: flex; align-items: center; gap: 10px; }
+  .confidence-bar-bg { flex: 1; height: 6px; background: rgba(255,255,255,0.2); border-radius: 3px; }
+  .confidence-bar-fill { height: 100%; border-radius: 3px; background: var(--green-300); transition: width 1s ease; }
+  .confidence-label { font-size: 13px; color: #fff; font-weight: 600; min-width: 36px; text-align: right; }
+  .result-content { padding: 20px; display: flex; flex-direction: column; gap: 14px; }
+  .result-card { background: var(--card); border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow); overflow: hidden; }
+  .result-card-header { padding: 12px 16px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid var(--border); }
+  .card-icon { font-size: 18px; }
+  .card-title { font-size: 13px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+  .result-card-body { padding: 14px 16px; }
+  .severity-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .sev-pill { padding: 4px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+  .severity-desc { font-size: 13px; color: var(--muted); line-height: 1.5; }
+  .alt-row { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border); }
+  .alt-row:last-child { border-bottom: none; }
+  .alt-name { font-size: 13px; color: var(--text); font-weight: 500; }
+  .alt-conf { font-size: 12px; color: var(--muted); }
+  .alt-bar { height: 4px; background: var(--green-100); border-radius: 2px; margin-top: 4px; }
+  .alt-fill { height: 100%; background: var(--green-400); border-radius: 2px; }
+  .treatment-step { display: flex; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+  .treatment-step:last-child { border-bottom: none; }
+  .step-circle { width: 28px; height: 28px; border-radius: 50%; background: var(--green-100); color: var(--green-700); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; }
+  .step-text { font-size: 13px; color: var(--text); line-height: 1.5; padding-top: 4px; }
+  .soil-cta { background: linear-gradient(135deg, var(--soil-700), var(--soil-400)); border-radius: var(--radius); padding: 18px 20px; display: flex; align-items: center; gap: 14px; cursor: pointer; transition: opacity 0.15s; margin-bottom: 80px; }
+  .soil-cta:active { opacity: 0.9; }
+  .soil-cta-icon { font-size: 36px; }
+  .soil-cta-text h3 { font-family: var(--font-display); font-size: 18px; color: #fff; margin-bottom: 4px; }
+  .soil-cta-text p { font-size: 12px; color: rgba(255,255,255,0.7); line-height: 1.5; }
+  #soil { background: var(--bg); }
+  .soil-hero { background: linear-gradient(160deg, var(--soil-900), var(--soil-700)); padding: 20px 20px 36px; position: relative; overflow: hidden; }
+  .soil-hero::before { content: ''; position: absolute; bottom: -50px; right: -30px; width: 180px; height: 180px; border-radius: 50%; background: rgba(255,255,255,0.05); }
+  .soil-hero-top { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+  .soil-hero-title { font-family: var(--font-display); font-size: 22px; color: #fff; }
+  .soil-hero-sub { font-size: 12px; color: rgba(255,255,255,0.6); margin-top: 2px; }
+  .soil-icon-lg { font-size: 40px; }
+  .last-updated { display: inline-flex; align-items: center; gap: 5px; background: rgba(255,255,255,0.1); border-radius: 20px; padding: 4px 10px; font-size: 11px; color: rgba(255,255,255,0.7); }
+  .soil-content { padding: 20px; display: flex; flex-direction: column; gap: 14px; }
+  .npk-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .npk-card { background: var(--card); border-radius: var(--radius-sm); border: 1px solid var(--border); padding: 14px 12px; text-align: center; box-shadow: var(--shadow); }
+  .npk-label { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
+  .npk-value { font-family: var(--font-display); font-size: 22px; line-height: 1; margin-bottom: 3px; }
+  .npk-unit { font-size: 10px; color: var(--muted); }
+  .npk-status { font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 20px; margin-top: 6px; display: inline-block; }
+  .gauge-row { display: flex; flex-direction: column; gap: 12px; }
+  .gauge-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+  .gauge-name { font-size: 13px; font-weight: 600; color: var(--text); }
+  .gauge-val { font-size: 13px; font-weight: 700; }
+  .gauge-track { height: 8px; background: var(--green-100); border-radius: 4px; overflow: hidden; }
+  .gauge-fill { height: 100%; border-radius: 4px; transition: width 1.2s ease; }
+  .gauge-labels { display: flex; justify-content: space-between; margin-top: 3px; }
+  .gauge-labels span { font-size: 10px; color: var(--muted); }
+  .correlation-card { background: linear-gradient(135deg, #1a3d1a, #2d7a3a); border-radius: var(--radius); padding: 18px; box-shadow: 0 4px 20px rgba(45,122,58,0.2); }
+  .corr-header { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+  .corr-icon { font-size: 22px; }
+  .corr-title { font-size: 13px; font-weight: 700; color: var(--green-300); text-transform: uppercase; letter-spacing: 0.06em; }
+  .corr-insight { font-size: 14px; color: #fff; line-height: 1.6; margin-bottom: 14px; }
+  .corr-action-btn { width: 100%; padding: 12px; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); border-radius: 10px; color: #fff; font-family: var(--font-body); font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.15s; }
+  .temp-humidity { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 80px; }
+  .env-card { background: var(--card); border-radius: var(--radius-sm); border: 1px solid var(--border); padding: 14px; box-shadow: var(--shadow); text-align: center; }
+  .env-icon { font-size: 28px; margin-bottom: 6px; }
+  .env-val { font-family: var(--font-display); font-size: 26px; color: var(--text); }
+  .env-label { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .lang-toggle { display: flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.15); border-radius: 20px; padding: 4px 10px; cursor: pointer; border: none; font-family: var(--font-body); font-size: 12px; color: #fff; position: absolute; top: 20px; right: 20px; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+  .fade-up { animation: fadeUp 0.5s ease both; }
+  .delay-1 { animation-delay: 0.1s; }
+  .delay-2 { animation-delay: 0.2s; }
+  .delay-3 { animation-delay: 0.3s; }
+  .delay-4 { animation-delay: 0.4s; }
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="screen" id="home">
+    <div class="home-hero">
+      <button class="lang-toggle" onclick="toggleLang()">🌐 <span id="lang-label">EN</span></button>
+      <div class="hero-greeting" id="t-greeting">Good Morning, Farmer</div>
+      <div class="hero-title">Diagnose any<br><em>crop disease</em><br>in seconds</div>
+      <div class="hero-badge">
+        <div class="hero-dot"></div>
+        <span id="t-live">Live IoT soil data active</span>
+      </div>
+    </div>
+    <div class="home-content">
+      <button class="scan-btn" onclick="goScan()">
+        <span style="font-size:22px">🔬</span>
+        <span id="t-scan-btn">Scan Leaf Now</span>
+      </button>
+      <button class="gallery-btn" onclick="goScan()">
+        <span>🖼️</span>
+        <span id="t-gallery-btn">Upload from gallery</span>
+      </button>
+      <div class="section-label" id="t-stats-label">Field Overview</div>
+      <div class="stat-row">
+        <div class="stat-card fade-up delay-1">
+          <div class="stat-num">23</div>
+          <div class="stat-label" id="t-scans">Scans this week</div>
+        </div>
+        <div class="stat-card fade-up delay-2">
+          <div class="stat-num">4</div>
+          <div class="stat-label" id="t-alerts">Active alerts</div>
+        </div>
+      </div>
+      <div class="section-label" id="t-recent-label">Recent Scans</div>
+      <div class="recent-scan">
+        <div class="recent-item" onclick="showResult('tomato')">
+          <div class="recent-thumb" style="background:#fef2f2">🍅</div>
+          <div class="recent-info">
+            <div class="recent-name">Tomato — Early Blight</div>
+            <div class="recent-date">Today, 7:42 AM · Field 3</div>
+          </div>
+          <div class="severity-badge sev-high">High</div>
+        </div>
+        <div class="recent-item" onclick="showResult('wheat')">
+          <div class="recent-thumb" style="background:#fffbeb">🌾</div>
+          <div class="recent-info">
+            <div class="recent-name">Wheat — Powdery Mildew</div>
+            <div class="recent-date">Yesterday · Field 1</div>
+          </div>
+          <div class="severity-badge sev-med">Medium</div>
+        </div>
+        <div class="recent-item" onclick="showResult('potato')">
+          <div class="recent-thumb" style="background:#f0fdf4">🥔</div>
+          <div class="recent-info">
+            <div class="recent-name">Potato — Healthy</div>
+            <div class="recent-date">2 days ago · Field 2</div>
+          </div>
+          <div class="severity-badge sev-low">Healthy</div>
+        </div>
+      </div>
+    </div>
+    <div style="height:80px"></div>
+    <div class="bottom-nav">
+      <div class="nav-item active"><span class="nav-icon">🏠</span><span id="t-nav-home">Home</span></div>
+      <div class="nav-item" onclick="goScan()"><span class="nav-icon">🔬</span><span id="t-nav-scan">Scan</span></div>
+      <div class="nav-item" onclick="goSoil()"><span class="nav-icon">🌱</span><span id="t-nav-soil">Soil</span></div>
+      <div class="nav-item"><span class="nav-icon">👤</span><span>Profile</span></div>
+    </div>
+  </div>
+
+  <div class="screen hidden" id="scan">
+    <div class="status-bar" style="background:#0a1a0a; color:#fff">
+      <button class="back-btn" onclick="goHome()" style="background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.15);color:#fff">‹</button>
+      <span style="color:#fff;font-size:15px;font-weight:600" id="t-scan-title">Scan Leaf</span>
+      <span>⚙️</span>
+    </div>
+    <div class="camera-view">
+      <div class="camera-bg"></div>
+      <div class="camera-placeholder">
+        <div class="camera-icon-lg">📷</div>
+        <div class="camera-text" id="t-cam-text">Point camera at a leaf<br>Keep it in the frame</div>
+      </div>
+      <div class="scan-frame">
+        <div class="scan-corner tl"></div><div class="scan-corner tr"></div>
+        <div class="scan-corner bl"></div><div class="scan-corner br"></div>
+      </div>
+      <div class="scan-guide" id="t-cam-guide">Hold steady for best results</div>
+    </div>
+    <div class="camera-controls">
+      <div class="cam-btn-secondary">⚡</div>
+      <div class="capture-btn" onclick="runDiagnosis()">🔬</div>
+      <div class="cam-btn-secondary" onclick="runDiagnosis()">🖼️</div>
+    </div>
+    <div class="sample-section">
+      <div class="sample-label" id="t-try-samples">Try with sample images</div>
+      <div class="sample-grid">
+        <div class="sample-chip" onclick="runDiagnosis('tomato')"><span>🍅</span><span>Tomato</span></div>
+        <div class="sample-chip" onclick="runDiagnosis('wheat')"><span>🌾</span><span>Wheat</span></div>
+        <div class="sample-chip" onclick="runDiagnosis('potato')"><span>🥔</span><span>Potato</span></div>
+        <div class="sample-chip" onclick="runDiagnosis('corn')"><span>🌽</span><span>Corn</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="screen hidden" id="result">
+    <div class="status-bar">
+      <button class="back-btn" onclick="goScan()">‹</button>
+      <span class="navbar-title" id="t-result-title">Diagnosis Result</span>
+      <span>📤</span>
+    </div>
+    <div class="result-hero">
+      <div class="leaf-preview" id="result-emoji">🍅</div>
+      <div class="result-disease" id="result-disease">Early Blight</div>
+      <div class="result-crop" id="result-crop">Tomato · Alternaria solani</div>
+      <div class="confidence-row">
+        <div class="confidence-bar-bg"><div class="confidence-bar-fill" id="conf-bar" style="width:0%"></div></div>
+        <div class="confidence-label" id="conf-label">91%</div>
+      </div>
+    </div>
+    <div class="result-content">
+      <div class="result-card fade-up delay-1">
+        <div class="result-card-header"><span class="card-icon">⚠️</span><span class="card-title" id="t-severity">Severity Assessment</span></div>
+        <div class="result-card-body">
+          <div class="severity-row"><div class="severity-badge sev-high sev-pill" id="result-severity">High Risk</div></div>
+          <div class="severity-desc" id="result-severity-desc">Active infection detected. Lesions visible on lower leaves. Without treatment, 40–60% yield loss expected within 2 weeks.</div>
+        </div>
+      </div>
+      <div class="result-card fade-up delay-2">
+        <div class="result-card-header"><span class="card-icon">🏆</span><span class="card-title" id="t-alternatives">Other Possibilities</span></div>
+        <div class="result-card-body">
+          <div class="alt-row"><div><div class="alt-name" id="alt1-name">Early Blight</div><div class="alt-bar"><div class="alt-fill" id="alt1-bar" style="width:91%"></div></div></div><div class="alt-conf" id="alt1-conf">91%</div></div>
+          <div class="alt-row"><div><div class="alt-name" id="alt2-name">Septoria Leaf Spot</div><div class="alt-bar"><div class="alt-fill" id="alt2-bar" style="width:6%;background:var(--green-300)"></div></div></div><div class="alt-conf" id="alt2-conf">6%</div></div>
+          <div class="alt-row"><div><div class="alt-name" id="alt3-name">Late Blight</div><div class="alt-bar"><div class="alt-fill" id="alt3-bar" style="width:3%;background:var(--green-100)"></div></div></div><div class="alt-conf" id="alt3-conf">3%</div></div>
+        </div>
+      </div>
+      <div class="result-card fade-up delay-3">
+        <div class="result-card-header"><span class="card-icon">💊</span><span class="card-title" id="t-treatment">Treatment Plan</span></div>
+        <div class="result-card-body" id="treatment-steps"></div>
+      </div>
+      <div class="soil-cta fade-up delay-4" onclick="goSoil()">
+        <div class="soil-cta-icon">🌱</div>
+        <div class="soil-cta-text">
+          <h3 id="t-soil-cta-h">View Soil Health Card</h3>
+          <p id="t-soil-cta-p">Low nitrogen detected — may be worsening this disease.</p>
+        </div>
+        <span style="color:rgba(255,255,255,0.7);font-size:20px">›</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="screen hidden" id="soil">
+    <div class="status-bar">
+      <button class="back-btn" onclick="goHome()">‹</button>
+      <span class="navbar-title" id="t-soil-title">Soil Health Card</span>
+      <span>📤</span>
+    </div>
+    <div class="soil-hero">
+      <div class="soil-hero-top">
+        <div class="soil-icon-lg">🌱</div>
+        <div>
+          <div class="soil-hero-title" id="t-soil-hero">Field 3 — Soil Intelligence</div>
+          <div class="soil-hero-sub">BLE Sensor Node · Plot ID: F3-N2</div>
+        </div>
+      </div>
+      <div class="last-updated">⏱ <span id="t-last-updated">Updated 2 hrs ago</span></div>
+    </div>
+    <div class="soil-content">
+      <div class="section-label">N · P · K — Macronutrients</div>
+      <div class="npk-grid">
+        <div class="npk-card"><div class="npk-label">Nitrogen</div><div class="npk-value" style="color:#d63a2f">42</div><div class="npk-unit">kg/ha</div><div class="npk-status" style="background:#fef2f2;color:#d63a2f">Low</div></div>
+        <div class="npk-card"><div class="npk-label">Phosphorus</div><div class="npk-value" style="color:#e8a020">68</div><div class="npk-unit">kg/ha</div><div class="npk-status" style="background:#fffbeb;color:#e8a020">Medium</div></div>
+        <div class="npk-card"><div class="npk-label">Potassium</div><div class="npk-value" style="color:#1f5c2e">112</div><div class="npk-unit">kg/ha</div><div class="npk-status" style="background:#edfaf0;color:#1f5c2e">Optimal</div></div>
+      </div>
+      <div class="result-card">
+        <div class="result-card-header"><span class="card-icon">📊</span><span class="card-title">Environmental Parameters</span></div>
+        <div class="result-card-body">
+          <div class="gauge-row">
+            <div class="gauge-item">
+              <div class="gauge-header"><span class="gauge-name">Soil pH</span><span class="gauge-val" style="color:#1f5c2e">6.4</span></div>
+              <div class="gauge-track"><div class="gauge-fill" id="ph-fill" style="width:0%;background:#3a9e4a"></div></div>
+              <div class="gauge-labels"><span>4.0 Acidic</span><span>Neutral 7.0</span><span>9.0 Alkaline</span></div>
+            </div>
+            <div class="gauge-item">
+              <div class="gauge-header"><span class="gauge-name">Moisture</span><span class="gauge-val" style="color:#2563eb">58%</span></div>
+              <div class="gauge-track"><div class="gauge-fill" id="moisture-fill" style="width:0%;background:#2563eb"></div></div>
+              <div class="gauge-labels"><span>Dry</span><span>Optimal</span><span>Saturated</span></div>
+            </div>
+            <div class="gauge-item">
+              <div class="gauge-header"><span class="gauge-name">Soil EC</span><span class="gauge-val" style="color:#e8a020">1.8 dS/m</span></div>
+              <div class="gauge-track"><div class="gauge-fill" id="ec-fill" style="width:0%;background:#e8a020"></div></div>
+              <div class="gauge-labels"><span>Low</span><span>Normal</span><span>High</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="correlation-card fade-up delay-2">
+        <div class="corr-header"><span class="corr-icon">🔗</span><span class="corr-title" id="t-corr-title">AI Correlation Insight</span></div>
+        <div class="corr-insight" id="t-corr-insight">Low Nitrogen (42 kg/ha) is weakening plant immunity, making your tomatoes significantly more vulnerable to Early Blight. The fungus thrives when plants are nutrient-stressed.</div>
+        <div style="background:rgba(255,255,255,0.1);border-radius:10px;padding:12px;margin-bottom:12px">
+          <div style="font-size:11px;font-weight:700;color:#8fd99a;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.06em">Recommended Action</div>
+          <div style="font-size:13px;color:#fff;line-height:1.6" id="t-corr-rec">Apply Urea @ 25 kg/acre as top-dressing immediately + Mancozeb 75 WP @ 2.5 g/L foliar spray every 7 days for 3 weeks.</div>
+        </div>
+        <button class="corr-action-btn" id="t-corr-btn">📋 Generate Full Treatment Report</button>
+      </div>
+      <div class="section-label">Temperature &amp; Humidity</div>
+      <div class="temp-humidity">
+        <div class="env-card"><div class="env-icon">🌡️</div><div class="env-val">28°C</div><div class="env-label">Soil Temperature</div></div>
+        <div class="env-card"><div class="env-icon">💧</div><div class="env-val">72%</div><div class="env-label">Relative Humidity</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="loading-overlay" id="loading">
+    <div class="loading-ring"></div>
+    <div class="loading-text" id="t-analyzing">Analyzing leaf...</div>
+    <div class="loading-sub" id="t-analyzing-sub">Running EfficientNet-B4 deep learning model on 150+ disease classes</div>
+  </div>
+</div>
+
+<script>
+const lang = {
+  EN: { greeting:'Good Morning, Farmer',live:'Live IoT soil data active',scanBtn:'Scan Leaf Now',galleryBtn:'Upload from gallery',statsLabel:'Field Overview',scans:'Scans this week',alerts:'Active alerts',recentLabel:'Recent Scans',scanTitle:'Scan Leaf',camText:'Point camera at a leaf\nKeep it in the frame',camGuide:'Hold steady for best results',trySamples:'Try with sample images',resultTitle:'Diagnosis Result',severity:'Severity Assessment',alternatives:'Other Possibilities',treatment:'Treatment Plan',soilCtaH:'View Soil Health Card',soilCtaP:'Low nitrogen detected — may be worsening this disease.',soilTitle:'Soil Health Card',soilHero:'Field 3 — Soil Intelligence',lastUpdated:'Updated 2 hrs ago',corrTitle:'AI Correlation Insight',corrInsight:'Low Nitrogen (42 kg/ha) is weakening plant immunity, making your tomatoes significantly more vulnerable to Early Blight.',corrRec:'Apply Urea @ 25 kg/acre as top-dressing immediately + Mancozeb 75 WP @ 2.5 g/L foliar spray every 7 days for 3 weeks.',corrBtn:'📋 Generate Full Treatment Report',analyzing:'Analyzing leaf...',analyzingSub:'Running EfficientNet-B4 deep learning model on 150+ disease classes',navHome:'Home',navScan:'Scan',navSoil:'Soil' },
+  HI: { greeting:'सुप्रभात, किसान',live:'IoT मिट्टी डेटा सक्रिय',scanBtn:'पत्ती स्कैन करें',galleryBtn:'गैलरी से अपलोड करें',statsLabel:'खेत सारांश',scans:'इस सप्ताह स्कैन',alerts:'सक्रिय चेतावनियां',recentLabel:'हाल के स्कैन',scanTitle:'पत्ती स्कैन',camText:'पत्ती पर कैमरा लगाएं\nफ्रेम में रखें',camGuide:'बेहतर परिणाम के लिए स्थिर रखें',trySamples:'नमूना छवियों से आज़माएं',resultTitle:'निदान परिणाम',severity:'गंभीरता मूल्यांकन',alternatives:'अन्य संभावनाएं',treatment:'उपचार योजना',soilCtaH:'मिट्टी स्वास्थ्य कार्ड देखें',soilCtaP:'कम नाइट्रोजन पाया गया — यह बीमारी बढ़ा सकता है।',soilTitle:'मिट्टी स्वास्थ्य कार्ड',soilHero:'खेत 3 — मिट्टी बुद्धिमत्ता',lastUpdated:'2 घंटे पहले अपडेट',corrTitle:'AI सहसंबंध विश्लेषण',corrInsight:'कम नाइट्रोजन (42 kg/ha) पौधों की रोग प्रतिरोधक क्षमता कमज़ोर कर रहा है।',corrRec:'यूरिया 25 kg/एकड़ तुरंत डालें + Mancozeb 75 WP @ 2.5 g/L हर 7 दिन में 3 सप्ताह तक।',corrBtn:'📋 पूर्ण उपचार रिपोर्ट बनाएं',analyzing:'पत्ती का विश्लेषण हो रहा है...',analyzingSub:'150+ रोग वर्गों पर AI मॉडल चल रहा है',navHome:'होम',navScan:'स्कैन',navSoil:'मिट्टी' }
+};
+let currentLang='EN', currentCrop='tomato';
+const diseases = {
+  tomato:{emoji:'🍅',disease:'Early Blight',crop:'Tomato · Alternaria solani',confidence:91,severity:'high',sevLabel:'High Risk',sevDesc:'Active infection detected. Lesions visible on lower leaves. Without treatment, 40–60% yield loss expected within 2 weeks.',alt1:'Early Blight',a1c:91,alt2:'Septoria Leaf Spot',a2c:6,alt3:'Late Blight',a3c:3,treatments:['Remove and destroy all infected leaves immediately to reduce spore load.','Apply Mancozeb 75 WP @ 2.5 g/L or Chlorothalonil @ 2 g/L as foliar spray.','Repeat spray every 7 days for 3 weeks. Avoid wetting foliage in evening.','Ensure adequate nitrogen nutrition — low N is worsening susceptibility.']},
+  wheat:{emoji:'🌾',disease:'Powdery Mildew',crop:'Wheat · Erysiphe graminis',confidence:87,severity:'med',sevLabel:'Medium Risk',sevDesc:'White powdery patches on upper leaf surface. Early-stage infection — treatment now can prevent spread to flag leaves.',alt1:'Powdery Mildew',a1c:87,alt2:'Rust',a2c:9,alt3:'Tan Spot',a3c:4,treatments:['Apply Propiconazole 25 EC @ 0.1% (1 mL/L) as foliar spray immediately.','Ensure good air circulation — avoid overcrowding in dense crop stands.','Repeat application after 14 days if humidity remains above 70%.']},
+  potato:{emoji:'🥔',disease:'Healthy Crop',crop:'Potato · No pathogen detected',confidence:96,severity:'low',sevLabel:'Healthy',sevDesc:'No disease detected. Crop appears healthy with good canopy development. Continue monitoring every 3–5 days.',alt1:'Healthy',a1c:96,alt2:'Early Blight (mild)',a2c:3,alt3:'Nutrient deficiency',a3c:1,treatments:['Continue regular scouting every 3-5 days as a preventive measure.','Maintain soil moisture between 50–70%. Avoid overhead irrigation.','Consider a preventive copper-based fungicide spray before monsoon onset.']},
+  corn:{emoji:'🌽',disease:'Northern Leaf Blight',crop:'Corn · Exserohilum turcicum',confidence:83,severity:'med',sevLabel:'Medium Risk',sevDesc:'Long, cigar-shaped lesions on leaves. Disease is in early stage — quick intervention will prevent ear infection.',alt1:'Northern Leaf Blight',a1c:83,alt2:'Grey Leaf Spot',a2c:12,alt3:'Rust',a3c:5,treatments:['Apply Mancozeb + Carbendazim (combination fungicide) @ 2 g/L.','Remove heavily infected lower leaves before spraying.','Ensure potassium levels are optimal — check soil card for K status.','Monitor for 2 weeks and repeat spray if lesion spread continues.']}
+};
+function showScreen(id,fromLeft=false){document.querySelectorAll('.screen').forEach(s=>{s.classList.remove('hidden','slide-left');if(s.id!==id)s.classList.add(fromLeft?'slide-left':'hidden')});}
+function goHome(){showScreen('home',true);}
+function goScan(){showScreen('scan');}
+function goSoil(){showScreen('soil');setTimeout(()=>{document.getElementById('ph-fill').style.width='60%';document.getElementById('moisture-fill').style.width='58%';document.getElementById('ec-fill').style.width='45%';},300);}
+function goResult(){
+  const d=diseases[currentCrop];
+  document.getElementById('result-emoji').textContent=d.emoji;
+  document.getElementById('result-disease').textContent=d.disease;
+  document.getElementById('result-crop').textContent=d.crop;
+  document.getElementById('conf-label').textContent=d.confidence+'%';
+  document.getElementById('conf-bar').style.width='0%';
+  setTimeout(()=>{document.getElementById('conf-bar').style.width=d.confidence+'%';},300);
+  const sb=document.getElementById('result-severity');
+  sb.textContent=d.sevLabel;sb.className='severity-badge sev-pill sev-'+d.severity;
+  document.getElementById('result-severity-desc').textContent=d.sevDesc;
+  document.getElementById('alt1-name').textContent=d.alt1;document.getElementById('alt1-conf').textContent=d.a1c+'%';document.getElementById('alt1-bar').style.width=d.a1c+'%';
+  document.getElementById('alt2-name').textContent=d.alt2;document.getElementById('alt2-conf').textContent=d.a2c+'%';document.getElementById('alt2-bar').style.width=d.a2c+'%';
+  document.getElementById('alt3-name').textContent=d.alt3;document.getElementById('alt3-conf').textContent=d.a3c+'%';document.getElementById('alt3-bar').style.width=d.a3c+'%';
+  document.getElementById('treatment-steps').innerHTML=d.treatments.map((t,i)=>`<div class="treatment-step"><div class="step-circle">${i+1}</div><div class="step-text">${t}</div></div>`).join('');
+  showScreen('result');
+}
+function showResult(crop){currentCrop=crop;goResult();}
+function runDiagnosis(crop){
+  if(crop)currentCrop=crop;
+  const overlay=document.getElementById('loading');
+  overlay.classList.add('show');
+  const steps=['Preprocessing image...','Running EfficientNet-B4...','Analyzing 150+ disease classes...','Cross-referencing soil data...','Generating treatment plan...'];
+  let i=0;
+  const interval=setInterval(()=>{i++;if(i<steps.length)document.getElementById('t-analyzing').textContent=steps[i];},500);
+  setTimeout(()=>{clearInterval(interval);overlay.classList.remove('show');document.getElementById('t-analyzing').textContent=lang[currentLang].analyzing;goResult();},2800);
+}
+function toggleLang(){
+  currentLang=currentLang==='EN'?'HI':'EN';
+  const t=lang[currentLang];
+  document.getElementById('lang-label').textContent=currentLang;
+  const ids={'t-greeting':t.greeting,'t-live':t.live,'t-scan-btn':t.scanBtn,'t-gallery-btn':t.galleryBtn,'t-stats-label':t.statsLabel,'t-scans':t.scans,'t-alerts':t.alerts,'t-recent-label':t.recentLabel,'t-scan-title':t.scanTitle,'t-cam-guide':t.camGuide,'t-try-samples':t.trySamples,'t-result-title':t.resultTitle,'t-severity':t.severity,'t-alternatives':t.alternatives,'t-treatment':t.treatment,'t-soil-cta-h':t.soilCtaH,'t-soil-cta-p':t.soilCtaP,'t-soil-title':t.soilTitle,'t-soil-hero':t.soilHero,'t-last-updated':t.lastUpdated,'t-corr-title':t.corrTitle,'t-corr-insight':t.corrInsight,'t-corr-rec':t.corrRec,'t-corr-btn':t.corrBtn,'t-analyzing':t.analyzing,'t-analyzing-sub':t.analyzingSub,'t-nav-home':t.navHome,'t-nav-scan':t.navScan,'t-nav-soil':t.navSoil};
+  for(const[id,val]of Object.entries(ids)){const el=document.getElementById(id);if(el&&val)el.textContent=val;}
+  const ct=document.getElementById('t-cam-text');if(ct)ct.innerHTML=t.camText.replace('\n','<br>');
+}
+setTimeout(()=>{document.getElementById('ph-fill').style.width='60%';document.getElementById('moisture-fill').style.width='58%';document.getElementById('ec-fill').style.width='45%';},800);
+</script>
+</body>
+</html>
