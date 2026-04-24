@@ -1,0 +1,77 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --green-950: #0a1a0d;
+  --green-900: #143318;
+  --green-800: #1e5c2a;
+  --green-700: #277a36;
+  --green-600: #2e9940;
+  --green-500: #3ab84e;
+  --green-400: #6dd17e;
+  --green-300: #a5e5b0;
+  --green-200: #d0f2d6;
+  --green-100: #eafaec;
+  --amber-500: #d97706;
+  --amber-400: #f59e0b;
+  --amber-300: #fcd34d;
+  --amber-100: #fef3c7;
+  --red-500: #dc2626;
+  --red-100: #fee2e2;
+  --cream: #f8f5ee;
+  --cream-dark: #ede9df;
+  --border: #c8dcc5;
+  --shadow: rgba(20, 51, 24, 0.10);
+  --text-primary: #1a2e1d;
+  --text-secondary: #4a6350;
+  --text-muted: #7a9480;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--cream);
+  color: var(--text-primary);
+}
+
+.font-serif { font-family: 'DM Serif Display', serif !important; }
+
+/* Upload zone drag-over state */
+.drag-over {
+  background: var(--green-200) !important;
+  border-color: var(--green-600) !important;
+}
+
+/* Chat scrollbar */
+.chat-scroll::-webkit-scrollbar { width: 4px; }
+.chat-scroll::-webkit-scrollbar-track { background: transparent; }
+.chat-scroll::-webkit-scrollbar-thumb { background: var(--green-300); border-radius: 2px; }
+
+/* Thinking dots animation */
+@keyframes bounce {
+  0%, 80%, 100% { transform: scale(0.7); opacity: 0.5; }
+  40% { transform: scale(1); opacity: 1; }
+}
+.thinking-dot { animation: bounce 1.2s ease-in-out infinite; }
+.thinking-dot:nth-child(2) { animation-delay: 0.2s; }
+.thinking-dot:nth-child(3) { animation-delay: 0.4s; }
+
+/* Spinner */
+@keyframes spin { to { transform: rotate(360deg); } }
+.spinner {
+  width: 36px; height: 36px;
+  border: 3px solid var(--green-200);
+  border-top-color: var(--green-600);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+/* Moisture bar fill animation */
+.moisture-fill { transition: width 1s ease; }
+
+/* Card hover */
+.hover-lift { transition: box-shadow 0.2s, transform 0.2s; }
+.hover-lift:hover { box-shadow: 0 8px 30px var(--shadow); transform: translateY(-2px); }
